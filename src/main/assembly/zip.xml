@@ -9,7 +9,7 @@
     <includeBaseDirectory>false</includeBaseDirectory>
     <fileSets>
         <fileSet>
-            <directory>${project.build.directory}/${project.build.finalName}-dir/${project.build.finalName}</directory>
+            <directory>${project.build.directory}/${project.build.finalName}/${project.build.finalName}</directory>
             <outputDirectory>/gn2</outputDirectory>
         </fileSet>
     </fileSets>
