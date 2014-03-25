@@ -22,7 +22,7 @@
             <url>s3://bamboo.local.garage/migration.test/releases</url>
         </repository>
         <snapshotRepository>
-            <id>amazon-s3-snapshots</id>
+            <id>amazon-s3-test-snapshots</id>
             <name>Amazon S3 snapshot repo</name>
             <url>s3://bamboo.local.garage/migration.test/snapshots</url>
         </snapshotRepository>
@@ -65,36 +65,6 @@
                     <argLine>-Xmx1024m</argLine>
                 </configuration>
             </plugin>
-            <!-- Use Groovy to search the location of the properties file. -->
-            <plugin>
-                <groupId>org.codehaus.groovy.maven</groupId>
-                <artifactId>gmaven-plugin</artifactId>
-                <version>1.0-rc-4</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>execute</goal>
-                        </goals>
-                        <configuration>
-                            <source>
-                                import java.io.File
-                                String p = "pom.xml"
-                                String dir = "./"
-                                File f = new File(p)
-                                File newF = new File("../"+ p)
-                                if (newF.exists()) {
-                                    f = newF
-                                    dir = "../"
-                                }
-                                // Look in this folder and the one underneath...set hte root directory to be the
-                                // one that has a pom.xml file.
-                                project.properties['main.basedir'] = dir
-                        </source>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
@@ -119,10 +89,6 @@
         <module>core</module>
         <module>gui</module>
     </modules>
-
-    <properties>
-        <project.assembly.finalName>${project.build.finalName}-${git.commit.id.describe}</project.assembly.finalName>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -175,24 +141,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                        <version>2.1.9</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>revision</goal>
-                                </goals>
-                                <configuration>
-                                    <dateFormat>yyyyMMdd.HHmmss</dateFormat>
-                                    <gitDescribe>
-                                        <tags>true</tags>
-                                    </gitDescribe>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <artifactId>maven-assembly-plugin</artifactId>
                         <version>2.4</version>
                         <inherited>false</inherited>
@@ -243,7 +191,7 @@
                             <alias>1</alias>
                             <storetype>pkcs12</storetype>
                             <removeExistingSignatures>true</removeExistingSignatures>
-                            <archiveDirectory>${project.build.directory}/${project.assembly.finalName}/${project.assembly.finalName}</archiveDirectory>
+                            <archiveDirectory>${project.build.directory}/${project.build.finalName}/${project.build.finalName}</archiveDirectory>
                             <includes>
                                 <include>*.jar</include>
                             </includes>
@@ -264,27 +212,6 @@
                                     <descriptors>
                                         <descriptor>src/main/assembly/zip.xml</descriptor>
                                     </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>wagon-maven-plugin</artifactId>
-                        <version>1.0-beta-5</version>
-                        <inherited>false</inherited>
-                        <executions>
-                            <execution>
-                                <id>upload-build</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>upload-single</goal>
-                                </goals>
-                                <configuration>
-                                    <fromFile>${project.build.directory}/${project.assembly.finalName}.zip</fromFile>
-                                    <url>s3://bamboo.local.garage/migration.test/builds/</url>
-                                    <serverId>amazon-s3-test-releases</serverId>
-                                    <toFile>${git.commit.id.describe}/${project.assembly.finalName}-${git.build.time}.zip</toFile>
                                 </configuration>
                             </execution>
                         </executions>
