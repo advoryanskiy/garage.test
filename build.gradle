@@ -16,19 +16,18 @@ configurations {
     compile
 }
 
-
-
-task copyToLib( type: Copy, dependsOn: 'gui:build'){
-
+task copyToLib( dependsOn: 'gui:assemble'){
+    copy {
         into "$buildDir/output"
         from configurations.runtime
-
+    }
 }
 
-
-task zip(type: Zip, dependsOn:'gui:build') {
+task zip(type: Zip) {
     from "$buildDir/output"
 }
+
+build.dependsOn(zip)
 
 task explodedDist(dependsOn: assemble)  {
 
@@ -69,15 +68,4 @@ subprojects {
 
 }
 
-/*
-Closure cl = { task -> println "I'm $task.project.name" }
-task hello << cl
-project(':core') {
-    task hello << cl
 
-
-
-task listJars << {
-    configurations.compile.each { File file -> println file.name }
-}
-}*/
