@@ -1,19 +1,18 @@
 apply plugin: 'java'
-
 sourceCompatibility = 1.5
 version = '1.0'
+
 repositories {
     mavenCentral()
 }
 
+configurations {
+    compile
+}
 
 dependencies {
     compile   'org.apache.shiro:shiro-all:1.0.0-incubating' ,
     'com.google.inject:guice:3.0'
-}
-
-configurations {
-    compile
 }
 
 task copyToLib( dependsOn: 'gui:assemble'){
@@ -30,16 +29,23 @@ task zip(type: Zip) {
 build.dependsOn(zip)
 
 task explodedDist(dependsOn: assemble)  {
-
     project.tasks.withType(Jar).each {archiveTask ->
         copy {
             from archiveTask.archivePath
             into "$buildDir/output"
         }
     }
-
 }
 
+task signJars(type:Exec) {
+    println 'hohoho!'
+    workingDir getRootDir().toString() + "/build/output"
+    String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + "/build/output/core.jar 1"
+    println command
+    commandLine 'cmd','/c', command
+}
+
+build.dependsOn(signJars)
 
 subprojects {
     apply plugin: 'java'
