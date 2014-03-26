@@ -85,8 +85,8 @@
         </plugins>
         <extensions>
            <extension>  
-                <groupId>org.springframework.build.aws</groupId>  
-                <artifactId>org.springframework.build.aws.maven</artifactId>  
+                <groupId>org.springframework.build</groupId>  
+                <artifactId>aws-maven</artifactId>  
                 <version>5.0.0.RELEASE</version>  
             </extension>  
         </extensions>
