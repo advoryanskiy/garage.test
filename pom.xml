@@ -84,15 +84,10 @@
             </plugin>
         </plugins>
         <extensions>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>1.0-beta-6</version>
-            </extension>
            <extension>  
                 <groupId>org.springframework.build.aws</groupId>  
                 <artifactId>org.springframework.build.aws.maven</artifactId>  
-                <version>3.0.0.RELEASE</version>  
+                <version>5.0.0.RELEASE</version>  
             </extension>  
         </extensions>
     </build>
