@@ -5,12 +5,12 @@
     <artifactId>main</artifactId>
     <packaging>pom</packaging>
     <name>Garage Test</name>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <description>Garage Test</description>
 
     <scm>
-        <connection>scm:git:https://advoryanskiy@github.com/advoryanskiy/garage.test.git</connection>
-        <developerConnection>scm:git:https://advoryanskiy@github.com/advoryanskiy/garage.test.git</developerConnection>
+        <connection>scm:git:https://github.com/advoryanskiy/garage.test.git</connection>
+        <developerConnection>scm:git:https://github.com/advoryanskiy/garage.test.git</developerConnection>
     </scm>
 
     <distributionManagement>
