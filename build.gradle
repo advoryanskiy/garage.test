@@ -2,12 +2,82 @@ apply plugin: 'java'
 
 sourceCompatibility = 1.5
 version = '1.0'
-
 repositories {
     mavenCentral()
 }
 
+
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile   'org.apache.shiro:shiro-all:1.0.0-incubating' ,
+    'com.google.inject:guice:3.0'
 }
 
+configurations {
+    compile
+}
+
+
+
+task copyToLib( type: Copy, dependsOn: 'gui:build'){
+
+        into "$buildDir/output"
+        from configurations.runtime
+
+}
+
+
+task zip(type: Zip, dependsOn:'gui:build') {
+    from "$buildDir/output"
+}
+
+task explodedDist(dependsOn: assemble)  {
+
+    project.tasks.withType(Jar).each {archiveTask ->
+        copy {
+            from archiveTask.archivePath
+            into "$buildDir/output"
+        }
+    }
+
+}
+
+
+subprojects {
+    apply plugin: 'java'
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        compile group: 'junit', name: 'junit', version: '4.11'
+    }
+    test {
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+
+    task explodedDist(dependsOn: assemble)  {
+        allprojects.each {project ->
+            project.tasks.withType(Jar).each {archiveTask ->
+                copy {
+                    from archiveTask.archivePath
+                    into getRootDir().toString() + "/build/output"
+                }
+            }
+        }
+    }
+
+}
+
+/*
+Closure cl = { task -> println "I'm $task.project.name" }
+task hello << cl
+project(':core') {
+    task hello << cl
+
+
+
+task listJars << {
+    configurations.compile.each { File file -> println file.name }
+}
+}*/
