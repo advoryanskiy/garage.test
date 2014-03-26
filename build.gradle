@@ -38,10 +38,8 @@ task explodedDist(dependsOn: assemble)  {
 }
 
 task signJars(type:Exec) {
-    println 'hohoho!'
     workingDir getRootDir().toString() + "/build/output"
-    String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + "/build/output/core.jar 1"
-    println command
+    String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir().toString() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + "/build/output/core.jar 1"
     commandLine 'cmd','/c', command
 }
 
@@ -72,6 +70,10 @@ subprojects {
         }
     }
 
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.11'
 }
 
 
