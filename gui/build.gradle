@@ -1,1 +1,3 @@
-apply plugin: 'java'
+dependencies {
+    runtime 'com.google.inject:guice:3.0'
+}

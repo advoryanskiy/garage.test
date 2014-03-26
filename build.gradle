@@ -1,6 +1,100 @@
-apply plugin: 'java'
-sourceCompatibility = 1.5
+allprojects {
+    apply plugin: 'java'
 
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    version = rootProject.version
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+    test {
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+        }
+    }
+}
+
+dependencies {
+    compile project(':core'), project(':gui')
+}
+
+File distDir = mkdir("$buildDir/dist")
+
+task dist {
+    subprojects.each { project ->
+        project.tasks.withType(Jar).each { archiveTask ->
+            copy {
+                from archiveTask.archivePath
+                into distDir
+            }
+        }
+        copy {
+            from configurations.runtime
+            into distDir
+        }
+    }
+}
+
+task sign {
+    distDir.with { file -> file.name.endsWith(".jar") }.each { file ->
+        ant.signjar(jar: file,
+                alias: '1',
+                keystore: 'keystore.p12',
+                storepass: 'Shark10Byte',
+                storetype: 'pkcs12')
+    }
+}
+
+task zip(type: Zip) {
+
+}
+
+task deploy(dependsOn: [buildNeeded, dist, sign, zip])
+
+
+//task
+
+/*
+version = '1.0'
+
+allprojects {
+//    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    version = rootProject.version
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+    test {
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+        }
+    }
+}
+
+dependencies {
+    compile project(':core'), project(':gui')
+    compile 'org.apache.shiro:shiro-all:1.0.0-incubating', 'com.google.inject:guice:3.0'
+}
+
+task dist(type: Zip) {
+    dependsOn build
+} */
+
+/*==============*/
+
+/*
 repositories {
     mavenCentral()
 }
@@ -58,9 +152,8 @@ subprojects {
         }
     }
 }
+*/
 
 task wrapper(type: Wrapper) {
     gradleVersion = '1.11'
 }
-
-

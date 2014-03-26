@@ -1,1 +1,3 @@
+rootProject.name = 'gn'
+
 include 'core', 'gui'
