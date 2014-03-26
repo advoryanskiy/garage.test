@@ -1,6 +1,5 @@
 apply plugin: 'java'
 sourceCompatibility = 1.5
-version = '1.0'
 
 repositories {
     mavenCentral()
@@ -11,11 +10,11 @@ configurations {
 }
 
 dependencies {
-    compile   'org.apache.shiro:shiro-all:1.0.0-incubating' ,
-    'com.google.inject:guice:3.0'
+    compile project(':core'), project(':gui')  , 'org.apache.shiro:shiro-all:1.0.0-incubating' ,
+   'com.google.inject:guice:3.0'
 }
 
-task copyToLib( dependsOn: 'gui:assemble'){
+task copyToLib( ){
     copy {
         into "$buildDir/output"
         from configurations.runtime
@@ -26,27 +25,27 @@ task zip(type: Zip) {
     from "$buildDir/output"
 }
 
+allprojects{
+    version = '1.0'
+
+    task explodedDist(type: Copy)  {
+        from "$buildDir/libs"
+        into getRootDir().toString() + "/build/output"
+    }
+
+    jar.finalizedBy explodedDist
+    task signJars(type:Exec) {
+        workingDir getRootDir().toString() + "/build/output"
+        String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir().toString() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + '/build/output/'+ getProject().name +'-' + version + '.jar 1'
+        commandLine 'cmd','/c', command
+    }
+
+    explodedDist.finalizedBy signJars
+}
+
 build.dependsOn(zip)
 
-task explodedDist(dependsOn: assemble)  {
-    project.tasks.withType(Jar).each {archiveTask ->
-        copy {
-            from archiveTask.archivePath
-            into "$buildDir/output"
-        }
-    }
-}
-
-task signJars(type:Exec) {
-    workingDir getRootDir().toString() + "/build/output"
-    String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir().toString() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + "/build/output/core.jar 1"
-    commandLine 'cmd','/c', command
-}
-
-build.dependsOn(signJars)
-
 subprojects {
-    apply plugin: 'java'
     repositories {
         mavenCentral()
     }
@@ -58,18 +57,6 @@ subprojects {
             events "passed", "skipped", "failed"
         }
     }
-
-    task explodedDist(dependsOn: assemble)  {
-        allprojects.each {project ->
-            project.tasks.withType(Jar).each {archiveTask ->
-                copy {
-                    from archiveTask.archivePath
-                    into getRootDir().toString() + "/build/output"
-                }
-            }
-        }
-    }
-
 }
 
 task wrapper(type: Wrapper) {
