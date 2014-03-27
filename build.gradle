@@ -1,8 +1,9 @@
-apply plugin: 'java'
-sourceCompatibility = 1.5
-
-repositories {
-    mavenCentral()
+allprojects{
+    version = '1.0'
+    apply plugin: 'java'
+    repositories {
+        mavenCentral()
+    }
 }
 
 configurations {
@@ -10,45 +11,33 @@ configurations {
 }
 
 dependencies {
-    compile project(':core'), project(':gui')  , 'org.apache.shiro:shiro-all:1.0.0-incubating' ,
-   'com.google.inject:guice:3.0'
+    compile project(':core'), project(':gui')  ,
+    'org.apache.shiro:shiro-all:1.0.0-incubating' ,
+    'com.google.inject:guice:3.0'
 }
 
-task copyToLib( ){
+jar.doLast {
     copy {
         into "$buildDir/output"
         from configurations.runtime
     }
+    new File   ('build/signed').mkdirs()
+    (new File("$buildDir/output")).listFiles().each {
+        println it.absolutePath
+        ant.signjar(
+                destDir: 'build/signed',
+                jar: it, alias: '1',
+                storetype: 'pkcs12', keystore: 'keystore.p12',
+                storepass: 'Shark10Byte', preservelastmodified: 'true')
+    }
 }
 
 task zip(type: Zip) {
-    from "$buildDir/output"
+    from "$buildDir/signed"
 }
-
-allprojects{
-    version = '1.0'
-
-    task explodedDist(type: Copy)  {
-        from "$buildDir/libs"
-        into getRootDir().toString() + "/build/output"
-    }
-
-    jar.finalizedBy explodedDist
-    task signJars(type:Exec) {
-        workingDir getRootDir().toString() + "/build/output"
-        String command = '\"' + System.properties.'java.home' + '/../bin/jarsigner.exe\" -keystore ' + getRootDir().toString() +  '/keystore.p12 -storepass Shark10Byte -storetype pkcs12 ' + getRootDir() + '/build/output/'+ getProject().name +'-' + version + '.jar 1'
-        commandLine 'cmd','/c', command
-    }
-
-    explodedDist.finalizedBy signJars
-}
-
 build.dependsOn(zip)
 
 subprojects {
-    repositories {
-        mavenCentral()
-    }
     dependencies {
         compile group: 'junit', name: 'junit', version: '4.11'
     }
